@@ -1,0 +1,40 @@
+# dkClaw Router — Tuning Config
+# This is YOUR knob panel. Adjust weights to match your priorities.
+# Restart the router after changes: docker compose restart router
+
+# ── Scoring Weights (must roughly sum to 1.0) ────────
+# "balanced" is the default if you don't set these.
+# Uncomment and tweak to override:
+# weights:
+#   quality: 0.35      # how much you care about output quality
+#   cost: 0.45         # how much you care about saving money
+#   speed: 0.20        # how much you care about response time
+
+# ── Minimum Quality Threshold ────────────────────────
+# Models scoring below this on a task type are excluded.
+# Range: 0.0 (allow anything) → 1.0 (only the best).
+# Default 0.50 filters out local models for complex tasks.
+min_quality: 0.50
+
+# ── Task Overrides ───────────────────────────────────
+# Force a specific model for a task type. Router skips scoring.
+# Leave empty {} to let the algorithm decide everything.
+overrides: {}
+  # Examples — uncomment to pin:
+  # code_gen: deepseek-coder       # always use DeepSeek for code generation
+  # code_review: claude-sonnet     # always use Sonnet for code review
+  # simple_chat: ollama-llama      # free model for basic chat
+  # translation: gemini-flash      # Gemini is great + cheap for translation
+
+# ── Budget Guard ─────────────────────────────────────
+# When your budget is running low, force cheap models only.
+# Set force_cheap: true manually, or build automation to flip it
+# when spend hits threshold (via /global/spend/report).
+budget_guard:
+  enabled: true
+  force_cheap: false               # flip to true when budget is low
+  cheap_models:
+    - deepseek-chat
+    - gemini-flash
+    - ollama-llama
+    - ollama-mistral

@@ -1,0 +1,16 @@
+# Secrets — NEVER commit
+.env
+*.pem
+*.key
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

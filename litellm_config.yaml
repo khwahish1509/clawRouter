@@ -1,0 +1,135 @@
+# LiteLLM Proxy — Multi-Model Routing
+# Docker only. PyPI compromised 2026-03-24. Never pip install.
+
+model_list:
+  # Tier 1 — Premium (Anthropic)
+  - model_name: claude-sonnet
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+      rpm: 50
+      tpm: 200000
+
+  - model_name: claude-opus
+    litellm_params:
+      model: anthropic/claude-opus-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+      rpm: 20
+      tpm: 100000
+
+  - model_name: claude-haiku
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+      rpm: 100
+      tpm: 400000
+
+  # Tier 2 — Mid (DeepSeek, Gemini)
+  - model_name: deepseek-chat
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+      api_base: https://api.deepseek.com
+      rpm: 60
+      tpm: 300000
+
+  - model_name: deepseek-coder
+    litellm_params:
+      model: deepseek/deepseek-coder
+      api_key: os.environ/DEEPSEEK_API_KEY
+      api_base: https://api.deepseek.com
+      rpm: 60
+      tpm: 300000
+
+  - model_name: gemini-flash
+    litellm_params:
+      model: gemini/gemini-2.0-flash
+      api_key: os.environ/GEMINI_API_KEY
+      rpm: 60
+      tpm: 1000000
+
+  # Tier 3 — Local (Ollama, free)
+  - model_name: ollama-llama
+    litellm_params:
+      model: ollama_chat/llama3.1:8b
+      api_base: http://host.docker.internal:11434
+      rpm: 120
+      tpm: 50000
+      stream: true
+
+  - model_name: ollama-mistral
+    litellm_params:
+      model: ollama_chat/mistral:7b
+      api_base: http://host.docker.internal:11434
+      rpm: 120
+      tpm: 50000
+      stream: true
+
+  # OpenAI-compat aliases
+  - model_name: gpt-4
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+      api_base: https://api.deepseek.com
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  allowed_fails: 3
+  cooldown_time: 60
+  retry_after: 5
+  redis_host: redis
+  redis_port: 6379
+  redis_password: os.environ/REDIS_PASSWORD
+  fallbacks:
+    - claude-sonnet: [claude-haiku, deepseek-chat, gemini-flash]
+    - claude-opus: [claude-sonnet, deepseek-chat]
+    - claude-haiku: [deepseek-chat, gemini-flash, ollama-llama]
+    - deepseek-chat: [gemini-flash, claude-haiku, ollama-llama]
+    - deepseek-coder: [claude-haiku, ollama-llama]
+    - gemini-flash: [deepseek-chat, claude-haiku]
+    - ollama-llama: [ollama-mistral, deepseek-chat]
+    - ollama-mistral: [ollama-llama, deepseek-chat]
+    - gpt-4: [deepseek-chat, gemini-flash]
+    - gpt-3.5-turbo: [gemini-flash, ollama-llama]
+  context_window_fallbacks:
+    - claude-sonnet: [gemini-flash]
+    - deepseek-chat: [gemini-flash]
+    - ollama-llama: [deepseek-chat, gemini-flash]
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  cache: true
+  cache_params:
+    type: redis
+    host: redis
+    port: 6379
+    password: os.environ/REDIS_PASSWORD
+    ttl: 3600
+  default_fallbacks: [deepseek-chat, ollama-llama]
+  max_budget: 500
+  budget_duration: 30d
+  success_callback: [prometheus]
+  failure_callback: [prometheus]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  store_model_in_db: true
+
+default_key_generate_params:
+  max_budget: 50
+  budget_duration: 30d
+  max_parallel_requests: 10
+  tpm_limit: 100000
+  rpm_limit: 30

@@ -1,0 +1,38 @@
+{
+  "providers": {
+    "dkclaw": {
+      "baseUrl": "http://localhost:4001/v1",
+      "apiKey": {
+        "$secretRef": {
+          "provider": "env",
+          "key": "LITELLM_KEY"
+        }
+      },
+      "api": "openai-completions",
+      "models": [
+        "auto",
+        "auto-quality",
+        "auto-cheap",
+        "auto-fast",
+        "claude-sonnet",
+        "claude-opus",
+        "claude-haiku",
+        "deepseek-chat",
+        "deepseek-coder",
+        "gemini-flash",
+        "ollama-llama",
+        "ollama-mistral"
+      ]
+    }
+  },
+  "agents": {
+    "defaults": {
+      "provider": "dkclaw",
+      "models": ["auto"]
+    }
+  },
+  "heartbeat": {
+    "provider": "dkclaw",
+    "model": "ollama-llama"
+  }
+}

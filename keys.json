@@ -1,0 +1,26 @@
+[
+  {
+    "alias": "admin",
+    "budget": 200,
+    "rpm": 60,
+    "models": ["claude-sonnet","claude-opus","claude-haiku","deepseek-chat","deepseek-coder","gemini-flash","ollama-llama","ollama-mistral","gpt-4","gpt-3.5-turbo"]
+  },
+  {
+    "alias": "agent",
+    "budget": 150,
+    "rpm": 100,
+    "models": ["claude-sonnet","claude-haiku","deepseek-chat","gemini-flash","ollama-llama","ollama-mistral","gpt-4","gpt-3.5-turbo"]
+  },
+  {
+    "alias": "user-1",
+    "budget": 30,
+    "rpm": 20,
+    "models": ["claude-haiku","deepseek-chat","gemini-flash","ollama-llama","gpt-3.5-turbo"]
+  },
+  {
+    "alias": "user-2",
+    "budget": 30,
+    "rpm": 20,
+    "models": ["claude-haiku","deepseek-chat","gemini-flash","ollama-llama","gpt-3.5-turbo"]
+  }
+]
