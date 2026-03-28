@@ -7,9 +7,11 @@ services:
     volumes:
       - ./router.py:/app/router.py:ro
       - ./router_config.yaml:/app/router_config.yaml:ro
+      - router_logs:/app/logs
     environment:
       LITELLM_URL: http://litellm:4000
       ROUTER_CONFIG: /app/router_config.yaml
+      ROUTER_LOG_DIR: /app/logs
     entrypoint: ["sh", "-c", "pip install -q fastapi uvicorn httpx pyyaml && python /app/router.py"]
     depends_on:
       litellm: { condition: service_healthy }
@@ -92,3 +94,5 @@ volumes:
     name: litellm_postgres_data
   redis_data:
     name: litellm_redis_data
+  router_logs:
+    name: clawrouter_logs
